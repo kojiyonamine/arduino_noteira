@@ -1,11 +1,4 @@
-/*
-     Q0569
-     AUTOR:   BrincandoComIdeias
-     LINK:    https://www.youtube.com/brincandocomideias ; https://cursodearduino.net/
-     COMPRE:  https://www.arducore.com.br/
-     SKETCH:  UNO com NOTEIRO
-     DATA:    17/10/2019
-*/
+
 
 // DEFINIÇÕES
 #define pinNoteiro 2
