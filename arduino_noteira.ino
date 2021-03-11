@@ -1,4 +1,3 @@
-
 // DEFINIÇÕES
 #define pinNoteiro 2 // pino de interrupção do noteiro
 #define pinMoedas 3 // pino de interrupção das moedas
@@ -11,9 +10,12 @@ int contador_pulso = 0;
 int resto_contador = 0;
 int val=0;
 int analogPin = A0; // Define a leitura analógica
+int analogPin2 = A1; // Define a leitura analógica do botão começa 
 int valor_analogico = 0;
+int valor_analogico_botao_comeca = 1000;
 int logica_or_para_funcionamento_micro_A = 0;
 int logica_or_para_funcionamento_micro_B = 0;
+int logica_or_para_funcionamento_micro_C = 0;
 unsigned long espera_rodar_noteira=1000; //Espera 1 segundo após o início da noteira
 unsigned long tempoAtual = millis();
 unsigned long tempoInicial =0; // cronômetro utilizado no programa que faz a contagem das moedas
@@ -60,24 +62,38 @@ void leituraMoedinhas()
 void loop (){
   //delay (5000);
   valor_analogico=0;
+  valor_analogico_botao_comeca = 1000;
+  valor_analogico_botao_comeca = analogRead(analogPin2);
   valor_analogico = analogRead (analogPin);
-  Serial.println(valor_analogico);
+  Serial.println(valor_analogico_botao_comeca);
   
  // val= digitalRead (inputAudio);
-  if ( valor_analogico > 100)
+  if ( valor_analogico > 100) //aqui tá lendo o valor de áudio da saída do PC.
      {
      logica_or_para_funcionamento_micro_B = 1;
-    digitalWrite (outputAudio, HIGH);
+   logica_or_para_funcionamento_micro_C =0;
+    digitalWrite (outputAudio, LOW);
     cronometro_audio = millis();
    Serial.println ("Saída audio em high"); 
    valor_analogico = 0;    
       }
-      
+      //$$$$$$$$$$$$$$AQUI VEM A PARTE ADICIONADA DE CÓDIGO
+  if ( valor_analogico_botao_comeca < 900) // Aqui vê se o botão "começa" atinge o limite
+     {
+     logica_or_para_funcionamento_micro_C = 1;
+    //digitalWrite (outputAudio, HIGH);
+    //cronometro_audio = millis();
+   Serial.println ("APERTOU BOTÃO COMEÇA"); 
+   valor_analogico_botao_comeca = 1000;    
+      }  
+    
 // Aqui vem a gambiarra que faz funcionar o microfone só quando coloca crédito, por 20 segundos
 if (millis () - cronometro_microfone_credito > espera_tempo_cronometro_microfone_credito)
 {
    // digitalWrite (outputAudio, LOW);
     logica_or_para_funcionamento_micro_A = 0;
+  logica_or_para_funcionamento_micro_C = 0;
+  valor_analogico_botao_comeca = 10000; // aqui também reseta o botão começa
     Serial.println ("saída de áudio low por causa das moedas");
     valor_analogico = 0;  
 }
@@ -92,14 +108,14 @@ if (millis () - cronometro_microfone_credito > espera_tempo_cronometro_microfone
     valor_analogico = 0;  
   }
 //aqui vem a lógica para funcionar o áudio tanto quando colocar crédito, quanto quando a música começar
-  if ((logica_or_para_funcionamento_micro_A == 1) || (logica_or_para_funcionamento_micro_B == 1))
+  if ((logica_or_para_funcionamento_micro_A * logica_or_para_funcionamento_micro_C == 1) || (logica_or_para_funcionamento_micro_B == 1))
   {
-    digitalWrite(outputAudio,HIGH);
-    Serial.println( "estou aqui na lógica OR");
+    digitalWrite(outputAudio,LOW);
+    Serial.println( "estou aqui na lógica OR COM O MICRO LIGADO");
   }
   else
   {
-  digitalWrite (outputAudio,LOW);
+  digitalWrite (outputAudio,HIGH);
   Serial.println("entrei no Else da lógica OR");
   }
   
@@ -127,7 +143,7 @@ if (millis () - cronometro_microfone_credito > espera_tempo_cronometro_microfone
           //digitalWrite (outputAudio, HIGH); precisa desabilitar, porque se não a lógica "or" não funciona
           logica_or_para_funcionamento_micro_A = 1;
           cronometro_microfone_credito = millis();
-         // cronometro_audio = millis(); // Precisa colocar isso aquim se não vai disparar o cronômetro do áudio
+         // cronometro_audio = millis(); // Não colocar Precisa colocar isso aquim se não vai disparar o cronômetro do áudio
           Serial.println ("aqui estou ligando o microfone, porque inseriram créditos impar");
        }
        Serial.println("CONTADOR DE PULSO =0");  
@@ -162,3 +178,4 @@ if (millis () - cronometro_microfone_credito > espera_tempo_cronometro_microfone
 
 
 }
+
