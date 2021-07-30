@@ -29,7 +29,7 @@ unsigned long tempoInicial =0; // cronômetro utilizado no programa que faz a co
 unsigned long cronometro_audio = millis();
 unsigned long cronometro_microfone_credito = millis ();
 unsigned long espera_tempo_audio = 120000; // espera 6 segundos após acabar o sinal de áudio
-unsigned long espera_tempo_cronometro_microfone_credito = 2000;// tempo que o microfone fica aberto após colocar crédito
+unsigned long espera_tempo_cronometro_microfone_credito = 120000;// tempo que o microfone fica aberto após colocar crédito
 
 ///////////////VARIÁVEIS
 void setup() {
