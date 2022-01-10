@@ -16,7 +16,7 @@ int valor_analogico_botao_comeca = 1000;
 int logica_or_para_funcionamento_micro_A = 0;
 int logica_or_para_funcionamento_micro_B = 0;
 int logica_or_para_funcionamento_micro_C = 0;
-
+int corre = 0;
 
 
 int valor_analogico_setado_para_trigar = 150;// AQUI ESTÁ A VOLTAGEM PARA MUDAR O TRIGGER DO ARDUINO
@@ -39,18 +39,33 @@ void setup() {
   pinMode(pinSaida, OUTPUT);
   pinMode ( inputAudio,INPUT);
   pinMode (outputAudio,OUTPUT);
-  attachInterrupt(digitalPinToInterrupt(pinNoteiro), leituraNoteiro, RISING);
+  attachInterrupt(digitalPinToInterrupt(pinNoteiro), leituraNoteiro, FALLING);
   attachInterrupt(digitalPinToInterrupt(pinMoedas), leituraMoedinhas, FALLING);
 }
 //*****************SETUP***********//
 
 void leituraNoteiro()
 {
+  
+   static unsigned long last_interrupt_time = 0; //gambiarra para evitar erro de boucing
+   unsigned long interrupt_time = millis(); // continuação da gambi para o erro de bouncing
+   Serial.println ("LEITURA NOTEIRO");
+   corre = digitalRead(pinNoteiro);
+   Serial.println (corre);
+   if (interrupt_time - last_interrupt_time > 50)
+   {
+  corre = digitalRead(pinNoteiro);
+  Serial.println (corre);
+  if (corre == 0)
+  {
   contador_pulso++;
-  tempoInicial = millis();
   Serial.println("a interrupção funcionou! "); //APAGAR NO PROGRAMA EM PRODUÇÃO
   //Serial.println (tempoInicial); // APAGAR NO PROGRAMA EM PRODUÇÃO
-}
+  }
+   tempoInicial = millis();
+   last_interrupt_time = interrupt_time;
+   }
+  }
 
 void leituraMoedinhas()
 {
@@ -72,7 +87,7 @@ void loop (){
   valor_analogico_botao_comeca = 1000;
   valor_analogico_botao_comeca = analogRead(analogPin2);
   valor_analogico = analogRead (analogPin);
-  Serial.println(valor_analogico_botao_comeca);
+ // Serial.println(valor_analogico_botao_comeca);
   
  // val= digitalRead (inputAudio);
   if ( valor_analogico > valor_analogico_setado_para_trigar) //aqui tá lendo o valor de áudio da saída do PC.
@@ -90,7 +105,7 @@ void loop (){
      logica_or_para_funcionamento_micro_C = 1;
     //digitalWrite (outputAudio, HIGH);
     //cronometro_audio = millis();
-   Serial.println ("APERTOU BOTÃO COMEÇA"); 
+   //Serial.println ("APERTOU BOTÃO COMEÇA"); 
    valor_analogico_botao_comeca = 1000;    
       }  
     
@@ -101,7 +116,7 @@ if (millis () - cronometro_microfone_credito > espera_tempo_cronometro_microfone
     logica_or_para_funcionamento_micro_A = 0;
   logica_or_para_funcionamento_micro_C = 0;
   valor_analogico_botao_comeca = 10000; // aqui também reseta o botão começa
-    Serial.println ("saída de áudio low por causa das moedas");
+   // Serial.println ("saída de áudio low por causa das moedas");
     valor_analogico = 0;  
 }
 
@@ -111,7 +126,7 @@ if (millis () - cronometro_microfone_credito > espera_tempo_cronometro_microfone
     
     //digitalWrite (outputAudio, LOW);
     logica_or_para_funcionamento_micro_B=0;
-    Serial.println ("Saída audio em LOOOW");
+  //  Serial.println ("Saída audio em LOOOW");
     valor_analogico = 0;  
   }
 //aqui vem a lógica para funcionar o áudio tanto quando colocar crédito, quanto quando a música começar
@@ -123,7 +138,7 @@ if (millis () - cronometro_microfone_credito > espera_tempo_cronometro_microfone
   else
   {
   digitalWrite (outputAudio,HIGH);
-  Serial.println("entrei no Else da lógica OR");
+ // Serial.println("entrei no Else da lógica OR");
   }
   
  
